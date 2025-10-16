@@ -17,6 +17,8 @@ https://mirror.umd.edu/ubuntu-iso/24.04.3/ubuntu-24.04.3-desktop-amd64.iso
 ```
 
 ==============================================================================
+ALWAYS VERIFY!!!!
+
 Run this command in your terminal in the directory the iso was downloaded to verify the SHA256 checksum:
 
 ```bash
@@ -27,8 +29,7 @@ You should get the following output:
 ```bash
 ubuntu-24.04.3-desktop-amd64.iso: OK
 ```
-Or follow this tutorial to learn how to verify downloads.
-
+==============================================================================
 
 ---
 
