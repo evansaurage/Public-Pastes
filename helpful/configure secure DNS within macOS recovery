@@ -1,0 +1,193 @@
+Say you're in macOS Recovery with no OS installed yet, we can work within these constraints to establish secure DNS for the OS installation.
+
+## Step 1: Check Available Tools in Recovery
+
+First, let's see what we have available:
+
+```bash
+# Check available network utilities
+which scutil
+which networksetup
+which dns-sd
+which nslookup
+```
+
+## Step 2: Establish Basic Network Connectivity
+
+```bash
+# Check current network status
+scutil --nwi
+
+# Get current DNS settings
+scutil --dns
+
+# List network services
+networksetup -listallnetworkservices
+```
+
+## Step 3: Configure DNS Directly via scutil (Primary Method)
+
+Since we may not have full `networksetup` functionality in Recovery:
+
+```bash
+# Configure DNS for all active services using scutil
+scutil << EOF
+open
+get State:/Network/Global/IPv4
+d.add ServerAddresses * 1.1.1.1 1.0.0.1 9.9.9.9 149.112.112.112
+set State:/Network/Global/IPv4
+close
+EOF
+
+# Alternative: Configure per service
+for service in $(scutil <<< "list" | grep "State:/Network/Service" | awk -F'/| ' '{print $4}'); do
+scutil << EOF
+open
+get State:/Network/Service/${service}/DNS
+d.add ServerAddresses * 1.1.1.1 1.0.0.1 9.9.9.9
+set State:/Network/Service/${service}/DNS
+close
+EOF
+done
+```
+
+## Step 4: Create Minimal Hosts File in Recovery
+
+```bash
+# Create basic hosts file in recovery environment
+cat > /etc/hosts << 'EOF'
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+
+# Secure DNS servers - direct IP mapping
+1.1.1.1         one.one.one.one
+1.0.0.1         one.one.one.one
+9.9.9.9         dns.quad9.net
+149.112.112.112 dns.quad9.net
+8.8.8.8         dns.google
+EOF
+```
+
+## Step 5: Test DNS Resolution
+
+```bash
+# Test DNS resolution with different servers
+nslookup apple.com 1.1.1.1
+nslookup apple.com 9.9.9.9
+
+# Test if we can reach Apple installation servers
+ping -c 3 swcdn.apple.com
+ping -c 3 gs.apple.com
+
+# Check if we can resolve critical Apple domains
+nslookup swscan.apple.com
+nslookup gg.apple.com
+nslookup oscdn.apple.com
+```
+
+## Step 6: Force DNS Cache Refresh
+
+```bash
+# Clear any DNS caches (limited in recovery)
+dscacheutil -flushcache
+killall -HUP mDNSResponder
+
+# Alternative method
+scutil --dns
+```
+
+## Step 7: Configure Network for Installation
+
+If standard methods don't work, try manual network configuration:
+
+```bash
+# Get current network interface
+networksetup -getinfo "Ethernet"
+networksetup -getinfo "Wi-Fi"
+
+# Set DNS for specific interfaces (replace with your interface name)
+networksetup -setdnsservers "Wi-Fi" 1.1.1.1 1.0.0.1 9.9.9.9
+networksetup -setdnsservers "Ethernet" 1.1.1.1 1.0.0.1 9.9.9.9
+```
+
+## Step 8: Test Apple's Installation Servers
+
+```bash
+# Test critical Apple domains for installation
+echo "Testing Apple installation servers:"
+
+CRITICAL_DOMAINS=(
+"swcdn.apple.com"
+"gg.apple.com" 
+"oscdn.apple.com"
+"swdist.apple.com"
+"swscan.apple.com"
+"mesu.apple.com"
+"gdmf.apple.com"
+)
+
+for domain in "${CRITICAL_DOMAINS[@]}"; do
+    echo "Testing $domain:"
+    nslookup $domain 1.1.1.1
+    echo "---"
+done
+```
+
+## Step 9: Bypass Potential DNS Blocks
+
+If DNS is still being blocked, try these workarounds:
+
+```bash
+# Use Google DNS as fallback (less likely to be blocked)
+networksetup -setdnsservers "Wi-Fi" 8.8.8.8 8.8.4.4
+
+# Or use multiple redundant DNS servers
+networksetup -setdnsservers "Wi-Fi" 1.1.1.1 8.8.8.8 9.9.9.9 208.67.222.222
+```
+
+## Step 10: Attempt macOS Installation
+
+Now try the macOS installation:
+
+```bash
+# Start installer (this will vary based on your recovery version)
+echo "DNS should now be configured. Attempt installation via:"
+echo "1. Reboot and try macOS installation again"
+echo "2. Use 'Reinstall macOS' from Recovery utilities"
+echo "3. If using Internet Recovery, restart Internet Recovery"
+```
+
+## Step 11: Emergency Network Reset
+
+If nothing works, reset network configuration:
+
+```bash
+# Remove all network preferences
+rm -rf /var/preferences/SystemConfiguration/preferences.plist
+
+# Restart network services (limited in recovery)
+# May require reboot of recovery environment
+```
+
+## Verification Steps:
+
+After configuration, verify with:
+
+```bash
+# Check current DNS settings
+scutil --dns | head -20
+
+# Test connectivity to Apple
+curl -I https://apple.com
+
+# Verify we can reach installation servers
+nslookup swcdn.apple.com
+```
+
+## Important Recovery Notes:
+
+- **Limited Tools**: Recovery has minimal network utilities
+- **Temporary Settings**: Some settings may reset on reboot
+- **Internet Recovery**: If using Internet Recovery, DNS is crucial for downloading the installer
+- **Hardware Differences**: M1/M2 Macs may have different recovery behavior
