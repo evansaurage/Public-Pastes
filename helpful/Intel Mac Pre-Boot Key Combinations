@@ -1,0 +1,37 @@
+
+# 🍏 Essential Intel Mac Pre-Boot Key Combinations for Troubleshooting
+
+| Key Combo                                        | Description                                      | Use Case / Notes                                   |
+| ------------------------------------------------ | ------------------------------------------------ | -------------------------------------------------- |
+| **Command (⌘) + R**                              | Boot into **macOS Recovery Mode**                | Reinstall macOS, Disk Utility, Terminal access     |
+| **Option (⌥)**                                   | Startup Manager (choose boot disk)               | Select external drives, USB installers, recovery   |
+| **Command (⌘) + Option (⌥) + R**                 | Internet Recovery Mode (latest compatible macOS) | Reinstall macOS over internet                      |
+| **Shift (⇧)**                                    | Safe Mode                                        | Boot with minimal drivers and disable login items  |
+| **D**                                            | Apple Diagnostics                                | Test hardware for issues                           |
+| **Option (⌥) + D**                               | Apple Diagnostics over Internet                  | Run diagnostics remotely if internal not available |
+| **Command (⌘) + S**                              | Single-user mode                                 | Terminal-only, advanced troubleshooting            |
+| **Command (⌘) + V**                              | Verbose mode                                     | See detailed boot log messages                     |
+| **N**                                            | NetBoot (boot from network server)               | Network-based booting (if configured)              |
+| **T**                                            | Target Disk Mode                                 | Use Mac as external drive for another Mac          |
+| **Command (⌘) + Option (⌥) + P + R**             | Reset NVRAM                                      | Clear system settings, often fixes boot issues     |
+| **Shift (⇧) + Control (^) + Option (⌥) + Power** | Reset SMC                                        | Fix power, battery, and hardware management issues |
+| **Command (⌘) + Option (⌥) + F + R**             | Firmware Recovery Mode                           | Reinstall or recover firmware via Internet         |
+
+---
+
+### Additional Notes:
+
+* Some key combos like **Firmware Recovery Mode** (Cmd+Opt+F+R) require a network connection and are less commonly used but very useful in firmware corruption cases.
+* Safe Mode disables third-party extensions and caches — helpful for isolating software problems.
+* Apple Diagnostics can provide hardware error codes to help identify failing components.
+* Target Disk Mode is great for data recovery by connecting two Macs with Thunderbolt/USB-C cables.
+* Single-user mode is for advanced users familiar with command line UNIX.
+
+---
+
+### How to Use:
+
+* To enter these modes, **shut down your Mac completely**.
+* Press the **power button** and **immediately hold the key combo** until you see the corresponding screen or hear the chime.
+* For Internet-based modes, a wired Ethernet connection or stable Wi-Fi is required.
+* Releasing keys too early may cause a normal boot.
